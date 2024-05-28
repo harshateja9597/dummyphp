@@ -1,0 +1,47 @@
+
+name: PHP Tools
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  tools:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+
+      - name: Install Composer dependencies
+        run: composer install
+
+      - name: updating cbf
+        run: composer update squizlabs/php_codesniffer
+
+      - name: updating phpmd
+        run: composer update phpmd/phpmd pdepend/pdepend
+
+      - name: PHP lint
+        run: find . -name '*.php' -exec php -l {} \;
+
+      - name: PHP Code Beautifier and Fixer (PHP CBF)
+        run: vendor/bin/phpcbf --standard=PSR12 .
+
+      - name: PHP Mess Detector (PHPMD)
+        run: vendor/bin/phpmd . text cleancode
+
+      - name: PHP CodeSniffer (PHP CS)
+        run: vendor/bin/phpcs --standard=PSR12 .
+
+    
+
